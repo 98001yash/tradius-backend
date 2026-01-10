@@ -22,17 +22,29 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
     }
 
     @Override
-    public @Nullable Object beforeBodyWrite(@Nullable Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+    public Object beforeBodyWrite(
+            Object body,
+            MethodParameter returnType,
+            MediaType selectedContentType,
+            Class<? extends HttpMessageConverter<?>> selectedConverterType,
+            ServerHttpRequest request,
+            ServerHttpResponse response) {
 
-        List<String> allowedRoutes = List.of("/v3/api-docs","/actuator");
+        List<String> allowedRoutes = List.of("/v3/api-docs", "/actuator");
+
         boolean isAllowed = allowedRoutes
                 .stream()
                 .anyMatch(route -> request.getURI().getPath().contains(route));
 
-        if (body instanceof ApiResponse<?> || isAllowed) {
+        // DO NOT wrap already wrapped responses, swagger, actuator, or String responses
+        if (body instanceof ApiResponse<?> || isAllowed || body instanceof String) {
             return body;
         }
 
+        // Force JSON response type
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
         return new ApiResponse<>(body);
     }
+
 }
