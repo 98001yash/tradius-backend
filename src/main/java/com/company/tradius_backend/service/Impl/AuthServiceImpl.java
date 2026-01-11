@@ -5,6 +5,7 @@ import com.company.tradius_backend.dtos.AuthResponse;
 import com.company.tradius_backend.dtos.LoginRequest;
 import com.company.tradius_backend.dtos.SignupRequest;
 import com.company.tradius_backend.entities.User;
+import com.company.tradius_backend.enums.AuthProvider;
 import com.company.tradius_backend.enums.Role;
 import com.company.tradius_backend.exceptions.ResourceNotFoundException;
 import com.company.tradius_backend.exceptions.RuntimeConflictException;
@@ -41,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
         // set fields
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
+        user.setAuthProvider(AuthProvider.LOCAL);
         user.setEnabled(true);
 
         // save user
