@@ -28,21 +28,33 @@ public class Vendor {
     private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "owner_id",nullable = false)
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
+
 
     @Column(nullable = false)
     private String businessName;
 
-    @Column(nullable = false)
+    @Column(length = 1000)
     private String description;
+
+    @Column(nullable = false)
+    private UUID categoryId;
+
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private VendorStatus status;
 
+
     @Column(nullable = false)
     private boolean active;
+
 
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
