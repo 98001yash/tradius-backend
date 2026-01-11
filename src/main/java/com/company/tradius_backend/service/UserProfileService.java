@@ -3,6 +3,8 @@ package com.company.tradius_backend.service;
 import com.company.tradius_backend.dtos.UserProfileResponseDto;
 import com.company.tradius_backend.dtos.UserProfileUpdateRequestDto;
 
+import java.util.UUID;
+
 public interface UserProfileService {
 
 
@@ -14,5 +16,5 @@ public interface UserProfileService {
 
 
     // get profile of a user by userId ( ADMIN case)
-    UserProfileResponseDto getUserProfileById(Long userId);
+    UserProfileResponseDto getUserProfileById(UUID userId);
 }
