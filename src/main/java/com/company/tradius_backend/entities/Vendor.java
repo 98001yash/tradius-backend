@@ -38,8 +38,10 @@ public class Vendor {
     @Column(length = 1000)
     private String description;
 
-    @Column(nullable = false)
-    private UUID categoryId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
 
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)
