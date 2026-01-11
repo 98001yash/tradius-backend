@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final ModelMapper modelMapper;
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public UserProfileResponseDto getProfile() {
         UUID userId = getCurrentUserId();
 
@@ -39,6 +41,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public UserProfileResponseDto updateProfile(UserProfileUpdateRequestDto request) {
         UUID userId = getCurrentUserId();
         UserProfile profile = userProfileRepository
@@ -54,6 +57,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public UserProfileResponseDto getUserProfileById(UUID userId) {
         UserProfile profile = userProfileRepository
                 .findByUser_Id(userId)
