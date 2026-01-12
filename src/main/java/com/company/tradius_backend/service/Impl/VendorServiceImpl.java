@@ -155,7 +155,8 @@ public class VendorServiceImpl implements VendorService {
         dto.setLatitude(loc.getLatitude());
         dto.setLongitude(loc.getLongitude());
         dto.setCity(loc.getCity());
-        dto.setArea(loc.getAddressLine());
+        dto.setArea(loc.getArea());
+        dto.setAddressLine(loc.getAddressLine());
         dto.setServiceRadiusKm(loc.getServiceRadiusKm());
 
         dto.setStatus(vendor.getStatus().name());
