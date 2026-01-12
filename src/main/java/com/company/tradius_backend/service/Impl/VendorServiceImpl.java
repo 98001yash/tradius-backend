@@ -80,8 +80,16 @@ public class VendorServiceImpl implements VendorService {
     }
 
     @Override
+    @PreAuthorize("hasRole('VENDOR') or hasRole('ADMIN')")
     public VendorResponseDto getVendorProfile() {
-        return null;
+       UUID userId = getCurrentUserId();
+
+       Vendor vendor = vendorRepository
+               .findByOwner_Id(userId)
+               .orElseThrow(()->
+                       new ResourceNotFoundException("Vendor Profile not found")
+               );
+       return mapToResponseDto(vendor);
     }
 
     @Override
