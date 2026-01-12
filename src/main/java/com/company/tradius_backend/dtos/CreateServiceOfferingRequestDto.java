@@ -18,5 +18,5 @@ public class CreateServiceOfferingRequestDto {
     private Double price;
 
     @Positive(message = "Duration must be greater than zero")
-    private Integer durationInMinutes;
+    private Integer durationMinutes;
 }

@@ -38,7 +38,7 @@ public class ServiceOffering {
     @Column(nullable = false)
     private Double price;
 
-    private Integer durationInMinutes;
+    private Integer durationMinutes;
 
     @Column(nullable = false)
     private boolean active;
