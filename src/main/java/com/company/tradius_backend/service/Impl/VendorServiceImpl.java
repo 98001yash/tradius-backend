@@ -6,6 +6,7 @@ import com.company.tradius_backend.entities.Category;
 import com.company.tradius_backend.entities.Location;
 import com.company.tradius_backend.entities.User;
 import com.company.tradius_backend.entities.Vendor;
+import com.company.tradius_backend.enums.Role;
 import com.company.tradius_backend.enums.VendorStatus;
 import com.company.tradius_backend.exceptions.ResourceNotFoundException;
 import com.company.tradius_backend.exceptions.RuntimeConflictException;
@@ -108,10 +109,23 @@ public class VendorServiceImpl implements VendorService {
     public VendorResponseDto approveVendor(UUID vendorId) {
 
         Vendor vendor = getVendorById(vendorId);
+
+        if(vendor.getStatus()==VendorStatus.APPROVED){
+            throw new RuntimeConflictException("Vendor already approved");
+        }
+
         vendor.setStatus(VendorStatus.APPROVED);
         vendor.setActive(true);
 
-        log.info("Vendor {} approved",vendorId);
+        // upgrade user logic
+        User owner = vendor.getOwner();
+        if(owner.getRole() != Role.VENDOR){
+            owner.setRole(Role.VENDOR);
+            userRepository.save(owner);
+        }
+
+
+        log.info("Vendor {} approved and role upgraded for user {}", vendorId, owner.getId());
         return mapToResponseDto(vendor);
     }
 
