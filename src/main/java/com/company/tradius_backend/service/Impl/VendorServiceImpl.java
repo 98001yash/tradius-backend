@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -92,19 +93,38 @@ public class VendorServiceImpl implements VendorService {
        return mapToResponseDto(vendor);
     }
 
+    //     ADMIN METHODS
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public List<VendorResponseDto> getPendingVendors() {
-        return List.of();
+        return vendorRepository.findByStatus(VendorStatus.PENDING)
+                .stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public VendorResponseDto approveVendor(UUID vendorId) {
-        return null;
+
+        Vendor vendor = getVendorById(vendorId);
+        vendor.setStatus(VendorStatus.APPROVED);
+        vendor.setActive(true);
+
+        log.info("Vendor {} approved",vendorId);
+        return mapToResponseDto(vendor);
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public VendorResponseDto rejectVendor(UUID vendorId) {
-        return null;
+        Vendor vendor = getVendorById(vendorId);
+        vendor.setStatus(VendorStatus.REJECTED);
+
+        vendor.setActive(false);
+
+        log.info("Vendor {} rejected", vendorId);
+        return  mapToResponseDto(vendor);
     }
 
     // HELPER
