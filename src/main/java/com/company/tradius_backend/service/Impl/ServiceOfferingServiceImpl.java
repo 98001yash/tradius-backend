@@ -3,7 +3,16 @@ package com.company.tradius_backend.service.Impl;
 
 import com.company.tradius_backend.dtos.CreateServiceOfferingRequestDto;
 import com.company.tradius_backend.dtos.ServiceOfferingResponseDto;
+import com.company.tradius_backend.entities.ServiceOffering;
+import com.company.tradius_backend.entities.Vendor;
+import com.company.tradius_backend.enums.VendorStatus;
+import com.company.tradius_backend.exceptions.ResourceNotFoundException;
+import com.company.tradius_backend.exceptions.RuntimeConflictException;
+import com.company.tradius_backend.repository.ServiceOfferingRepository;
+import com.company.tradius_backend.repository.VendorRepository;
 import com.company.tradius_backend.service.ServiceOfferingService;
+import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +26,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class ServiceOfferingServiceImpl implements ServiceOfferingService {
+
+    private final ServiceOfferingRepository serviceOfferingRepository;
+    private final VendorRepository vendorRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public ServiceOfferingResponseDto createService(CreateServiceOfferingRequestDto request) {
@@ -41,5 +54,32 @@ public class ServiceOfferingServiceImpl implements ServiceOfferingService {
     @Override
     public ServiceOfferingResponseDto activateService(UUID serviceId) {
         return null;
+    }
+
+    //  Helpers
+    private Vendor gerApprovedVendorAndCurrentUser(){
+        UUID userId = UUID.fromString(
+                SecurityContextHolder.getContext()
+                        .getAuthentication()
+                        .getPrincipal()
+                        .toString()
+        );
+        Vendor vendor = vendorRepository
+                .findByOwner_Id(userId)
+                .orElseThrow(()->
+                        new ResourceNotFoundException("Vendor profile not found")
+                );
+        if(vendor.getStatus()!= VendorStatus.APPROVED){
+            throw new RuntimeConflictException("Vendor is not approved yet");
+        }
+        return vendor;
+    }
+
+    private ServiceOfferingResponseDto mapToResponseDto(ServiceOffering service){
+        ServiceOfferingResponseDto dto = modelMapper.map(service, ServiceOfferingResponseDto.class);
+
+        dto.setServiceId(service.getId());
+        dto.setVendorId(service.getVendor().getId());
+        return dto;
     }
 }
