@@ -12,6 +12,7 @@ import com.company.tradius_backend.repository.ServiceOfferingRepository;
 import com.company.tradius_backend.repository.VendorRepository;
 import com.company.tradius_backend.service.ServiceOfferingService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,9 +32,28 @@ public class ServiceOfferingServiceImpl implements ServiceOfferingService {
     private final VendorRepository vendorRepository;
     private final ModelMapper modelMapper;
 
+    //  vendor methods
+
     @Override
+    @PreAuthorize("hasRole('VENDOR')")
     public ServiceOfferingResponseDto createService(CreateServiceOfferingRequestDto request) {
-        return null;
+        Vendor vendor = gerApprovedVendorForCurrentUser();
+
+        ServiceOffering service = ServiceOffering.builder()
+                .vendor(vendor)
+                .name(request.getName())
+                .description(request.getDescription())
+                .price(request.getPrice())
+                .durationMinutes(request.getDurationMinutes())
+                .active(true)
+                .build();
+
+        ServiceOffering savedService = serviceOfferingRepository.save(service);
+        log.info("Service {} created for vendor {}",savedService.getId(), vendor.getId());
+
+        return mapToResponseDto(savedService);
+
+
     }
 
     @Override
@@ -57,7 +77,7 @@ public class ServiceOfferingServiceImpl implements ServiceOfferingService {
     }
 
     //  Helpers
-    private Vendor gerApprovedVendorAndCurrentUser(){
+    private Vendor gerApprovedVendorForCurrentUser(){
         UUID userId = UUID.fromString(
                 SecurityContextHolder.getContext()
                         .getAuthentication()
