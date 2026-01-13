@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -37,7 +38,7 @@ public class ServiceOfferingServiceImpl implements ServiceOfferingService {
     @Override
     @PreAuthorize("hasRole('VENDOR')")
     public ServiceOfferingResponseDto createService(CreateServiceOfferingRequestDto request) {
-        Vendor vendor = gerApprovedVendorForCurrentUser();
+        Vendor vendor = getApprovedVendorForCurrentUser();
 
         ServiceOffering service = ServiceOffering.builder()
                 .vendor(vendor)
@@ -53,31 +54,70 @@ public class ServiceOfferingServiceImpl implements ServiceOfferingService {
 
         return mapToResponseDto(savedService);
 
-
     }
 
     @Override
+    @PreAuthorize("hasRole('VENDOR')")
     public List<ServiceOfferingResponseDto> getMyServices() {
-        return List.of();
+       Vendor vendor = getApprovedVendorForCurrentUser();
+
+        return serviceOfferingRepository
+                .findByVendor_id(vendor.getId())
+                .stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ServiceOfferingResponseDto> getActiveServicesByVendor(UUID vendorId) {
-        return List.of();
+        return serviceOfferingRepository
+                .findByVendor_IdAndActiveTrue(vendorId)
+                .stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @PreAuthorize("hasRole('VENDOR')")
     public ServiceOfferingResponseDto deactivateService(UUID serviceId) {
-        return null;
+
+        Vendor vendor = getApprovedVendorForCurrentUser();
+
+        ServiceOffering service = serviceOfferingRepository
+                .findByIdVendor_Id(serviceId, vendor.getId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Service not found")
+                );
+
+        service.setActive(false);
+
+        log.info(
+                "Service {} deactivated by vendor {}",
+                serviceId,
+                vendor.getId()
+        );
+
+        return mapToResponseDto(service);
     }
 
     @Override
+    @PreAuthorize("hasRole('VENDOR')")
     public ServiceOfferingResponseDto activateService(UUID serviceId) {
-        return null;
+
+        Vendor vendor = getApprovedVendorForCurrentUser();
+
+        ServiceOffering service = serviceOfferingRepository
+                .findByIdVendor_Id(serviceId, vendor.getId())
+                .orElseThrow(()->
+                        new ResourceNotFoundException("Service not found"));
+        service.setActive(false);
+        log.info("Service {} activated by vendor {}",serviceId, vendor.getId());
+
+        return mapToResponseDto(service);
     }
 
     //  Helpers
-    private Vendor gerApprovedVendorForCurrentUser(){
+    private Vendor getApprovedVendorForCurrentUser(){
         UUID userId = UUID.fromString(
                 SecurityContextHolder.getContext()
                         .getAuthentication()
