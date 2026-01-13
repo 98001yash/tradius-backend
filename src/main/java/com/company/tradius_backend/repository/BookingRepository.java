@@ -19,7 +19,7 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     // VENDOR -> Get bookings by status
     List<Booking> findByVendor_IdAndStatus(UUID vendorId, BookingStatus status);
 
-    // ownership + existence checkyess
+    // ownership + existence check
     //(USER)
     Optional<Booking> findByIdAndUser_Id(UUID bookingId, UUID userId);
 
