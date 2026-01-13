@@ -14,7 +14,7 @@ public interface BookingService {
 
 
     // USER-> view own bookings
-    List<BookingResponseDto> getMyBookings(UUID serviceId);
+    List<BookingResponseDto> getMyBookings();
 
 
     // USER-> cancel bookings (only if allowed)

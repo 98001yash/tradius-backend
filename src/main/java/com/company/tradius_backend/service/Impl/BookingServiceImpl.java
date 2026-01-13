@@ -75,7 +75,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @PreAuthorize("hasRole('USER')")
-    public List<BookingResponseDto> getMyBookings(UUID serviceId) {
+    public List<BookingResponseDto> getMyBookings() {
         UUID userId = getCurrentUserId();
 
         return bookingRepository.findByUser_Id(userId)
