@@ -84,7 +84,7 @@ public class ServiceOfferingServiceImpl implements ServiceOfferingService {
         Vendor vendor = getApprovedVendorForCurrentUser();
 
         ServiceOffering service = serviceOfferingRepository
-                .findByIdVendor_Id(serviceId, vendor.getId())
+                .findByIdAndVendor_Id(serviceId, vendor.getId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Service not found")
                 );
@@ -107,10 +107,10 @@ public class ServiceOfferingServiceImpl implements ServiceOfferingService {
         Vendor vendor = getApprovedVendorForCurrentUser();
 
         ServiceOffering service = serviceOfferingRepository
-                .findByIdVendor_Id(serviceId, vendor.getId())
+                .findByIdAndVendor_Id(serviceId, vendor.getId())
                 .orElseThrow(()->
                         new ResourceNotFoundException("Service not found"));
-        service.setActive(false);
+        service.setActive(true);
         log.info("Service {} activated by vendor {}",serviceId, vendor.getId());
 
         return mapToResponseDto(service);

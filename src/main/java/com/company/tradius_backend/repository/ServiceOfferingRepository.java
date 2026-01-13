@@ -16,5 +16,5 @@ public interface ServiceOfferingRepository extends JpaRepository<ServiceOffering
     List<ServiceOffering> findByVendor_IdAndActiveTrue(UUID vendorId);
 
     // ownerShip and existence check
-    Optional<ServiceOffering> findByIdVendor_Id(UUID id, UUID vendorId);
+    Optional<ServiceOffering> findByIdAndVendor_Id(UUID id, UUID vendorId);
 }
