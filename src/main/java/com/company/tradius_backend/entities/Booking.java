@@ -24,7 +24,7 @@ public class Booking {
 
     // user do made the bookings
     @ManyToOne(fetch = FetchType.LAZY,  optional = false)
-    @JoinColumn(name = "vendor_id",nullable = false)
+    @JoinColumn(name = "user_id",nullable = false)
     private User user;
 
     // vendor fulfilling the bookings
