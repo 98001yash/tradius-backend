@@ -6,7 +6,7 @@ import com.company.tradius_backend.dtos.ServiceOfferingResponseDto;
 import java.util.List;
 import java.util.UUID;
 
-public interface ServiceOfferingServiceInterface {
+public interface ServiceOfferingService {
 
 
     // Vendor -> create a new service offering
