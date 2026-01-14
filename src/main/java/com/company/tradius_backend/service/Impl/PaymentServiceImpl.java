@@ -2,6 +2,7 @@ package com.company.tradius_backend.service.Impl;
 
 
 import com.company.tradius_backend.dtos.CreatePaymentResponseDto;
+import com.company.tradius_backend.dtos.VerifyPaymentRequestDto;
 import com.company.tradius_backend.entities.Booking;
 import com.company.tradius_backend.entities.Payment;
 import com.company.tradius_backend.enums.BookingStatus;
@@ -12,6 +13,7 @@ import com.company.tradius_backend.exceptions.RuntimeConflictException;
 import com.company.tradius_backend.repository.BookingRepository;
 import com.company.tradius_backend.repository.PaymentRepository;
 import com.company.tradius_backend.service.PaymentService;
+import com.company.tradius_backend.utils.RazorpaySignatureVerifier;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
@@ -19,9 +21,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.UUID;
 
@@ -34,6 +38,10 @@ public class PaymentServiceImpl implements PaymentService {
     private final RazorpayClient razorpayClient;
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
+
+    @Value("${razorpay.key.secret}")
+    private String razorpaySecret;
+
 
     @Override
     @PreAuthorize("hasRole('USER')")
@@ -78,6 +86,44 @@ public class PaymentServiceImpl implements PaymentService {
                 razorpayOrder.get("id"),
                 amountInPaise,
                 "INR"
+        );
+    }
+
+    @Override
+    @PreAuthorize("hasRole('USER')")
+    public void verifyRazorpayPayment(VerifyPaymentRequestDto request) throws RazorpayException {
+
+        Payment payment = paymentRepository
+                .findByRazorpayOrderId(request.getRazorpayOrderId())
+                .orElseThrow(()->new ResourceAccessException("Payment not found"));
+
+        if (payment.getStatus() != PaymentStatus.ORDER_CREATED) {
+            throw new RuntimeConflictException("Payment already initiated");
+        }
+
+        boolean isValid = RazorpaySignatureVerifier.verify(
+                request.getRazorpayOrderId(),
+                request.getRazorpayPaymentId(),
+                request.getRazorpaySignature(),
+                razorpaySecret
+        );
+
+        if(!isValid){
+            payment.setStatus(PaymentStatus.FAILED);
+            throw new RuntimeConflictException("Invalid payment signature");
+        }
+
+        payment.setRazorpayPaymentId(request.getRazorpayPaymentId());
+        payment.setRazorpaySignature(request.getRazorpaySignature());
+        payment.setStatus(PaymentStatus.CAPTURED);
+
+        Booking booking = payment.getBooking();
+        booking.setStatus(BookingStatus.COMPLETED);
+
+        log.info(
+                "Payment successful. Booking {} confirmed. PaymentId={}",
+                booking.getId(),
+                request.getRazorpayPaymentId()
         );
     }
 }

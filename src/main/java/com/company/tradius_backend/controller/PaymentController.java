@@ -2,13 +2,12 @@ package com.company.tradius_backend.controller;
 
 
 import com.company.tradius_backend.dtos.CreatePaymentResponseDto;
+import com.company.tradius_backend.dtos.VerifyPaymentRequestDto;
 import com.company.tradius_backend.service.PaymentService;
 import com.razorpay.RazorpayException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -26,4 +25,13 @@ public class PaymentController {
     ) throws RazorpayException {
         return paymentService.createRazorpayOrder(bookingId);
     }
+
+
+    @PostMapping("/razorpay/verify")
+    public void verifyPayment(
+            @Valid @RequestBody VerifyPaymentRequestDto request
+    ) throws RazorpayException {
+        paymentService.verifyRazorpayPayment(request);
+    }
+
 }
