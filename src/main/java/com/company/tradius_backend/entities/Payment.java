@@ -38,7 +38,7 @@ public class Payment {
     private PaymentStatus status;
 
     // razorPay specific fields
-    private String razopayOrderId;
+    private String razorpayOrderId;
     private String razorpayPaymentId;
     private String razorpaySignature;
 

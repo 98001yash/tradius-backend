@@ -65,7 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .amount(amountInPaise)
                 .method(PaymentMethod.RAZORPAY)
                 .status(PaymentStatus.ORDER_CREATED)
-                .razopayOrderId(razorpayOrder.get("id"))
+                .razorpayOrderId(razorpayOrder.get("id"))
                 .build();
 
 

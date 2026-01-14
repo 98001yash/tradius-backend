@@ -6,6 +6,7 @@ import com.company.tradius_backend.service.PaymentService;
 import com.razorpay.RazorpayException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,6 +19,8 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
+
+    @PostMapping("/razorpay/{bookingId}")
     public CreatePaymentResponseDto createRazorpayOrder(
             @PathVariable UUID bookingId
     ) throws RazorpayException {
