@@ -1,5 +1,6 @@
 package com.company.tradius_backend.controller;
 
+import com.company.tradius_backend.dtos.CategoryDiscoveryDto;
 import com.company.tradius_backend.dtos.ServiceSearchResponseDto;
 import com.company.tradius_backend.dtos.VendorDiscoveryDto;
 import com.company.tradius_backend.entities.*;
@@ -40,5 +41,20 @@ public class DiscoveryController {
                 })
                 .toList();
     }
+
+
+    @GetMapping("/areas/{areaId}/categories")
+    public List<CategoryDiscoveryDto> getCategoriesByArea(
+            @PathVariable UUID areaId
+    ) {
+        return vendorRepository.findCategoriesByArea(areaId)
+                .stream()
+                .map(c -> new CategoryDiscoveryDto(
+                        c.getId(),
+                        c.getName()
+                ))
+                .toList();
+    }
+
 
 }
