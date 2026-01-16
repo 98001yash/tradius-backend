@@ -41,4 +41,16 @@ WHERE l.area.id = :areaId
     List<Category> findCategoriesByArea(UUID areaId);
 
 
+
+    @Query("""
+SELECT v FROM Vendor v
+JOIN v.location l
+WHERE l.area.id = :areaId
+  AND v.status = 'APPROVED'
+  AND v.active = true
+ORDER BY v.createdAt DESC
+""")
+    List<Vendor> findTopVendorsByArea(UUID areaId);
+
+
 }

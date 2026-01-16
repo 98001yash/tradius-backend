@@ -58,5 +58,18 @@ public interface ServiceOfferingRepository extends JpaRepository<ServiceOffering
     );
 
 
+    @Query("""
+SELECT s FROM ServiceOffering s
+JOIN s.vendor v
+JOIN v.location l
+WHERE l.area.id = :areaId
+  AND s.active = true
+  AND v.active = true
+  AND v.status = 'APPROVED'
+ORDER BY s.createdAt DESC
+""")
+    List<ServiceOffering> findPopularServicesByArea(UUID areaId);
+
+
 
 }
