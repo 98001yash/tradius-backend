@@ -1,6 +1,7 @@
 package com.company.tradius_backend.repository;
 
 import com.company.tradius_backend.entities.Category;
+import com.company.tradius_backend.entities.ServiceOffering;
 import com.company.tradius_backend.entities.Vendor;
 import com.company.tradius_backend.enums.VendorStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -53,4 +54,22 @@ ORDER BY v.createdAt DESC
     List<Vendor> findTopVendorsByArea(UUID areaId);
 
 
+
+    @Query("""
+SELECT v FROM Vendor v
+JOIN v.location l
+WHERE l.area.id = :areaId
+  AND v.active = true
+  AND v.status = 'APPROVED'
+  AND (:categoryId IS NULL OR v.category.id = :categoryId)
+  AND (
+      :q IS NULL OR
+      lower(v.businessName) LIKE lower(concat('%', :q, '%'))
+  )
+""")
+    List<Vendor> smartSearchVendors(
+            UUID areaId,
+            UUID categoryId,
+            String q
+    );
 }

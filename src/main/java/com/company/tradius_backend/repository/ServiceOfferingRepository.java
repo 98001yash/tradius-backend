@@ -72,4 +72,31 @@ ORDER BY s.createdAt DESC
 
 
 
+    @Query("""
+SELECT s FROM ServiceOffering s
+JOIN s.vendor v
+JOIN v.location l
+WHERE l.area.id = :areaId
+  AND s.active = true
+  AND v.active = true
+  AND v.status = 'APPROVED'
+  AND (:categoryId IS NULL OR v.category.id = :categoryId)
+  AND (:minPrice IS NULL OR s.price >= :minPrice)
+  AND (:maxPrice IS NULL OR s.price <= :maxPrice)
+  AND (
+      :q IS NULL OR
+      lower(s.name) LIKE lower(concat('%', :q, '%')) OR
+      lower(v.businessName) LIKE lower(concat('%', :q, '%'))
+  )
+""")
+    List<ServiceOffering> smartSearchServices(
+            UUID areaId,
+            UUID categoryId,
+            Double minPrice,
+            Double maxPrice,
+            String q
+    );
+
+
+
 }

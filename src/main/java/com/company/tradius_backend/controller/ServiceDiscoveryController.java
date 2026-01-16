@@ -52,11 +52,9 @@ public class ServiceDiscoveryController {
                 s.getId(),
                 s.getName(),
                 s.getPrice(),
-                s.getDurationMinutes(),
-                v.getId(),
                 v.getBusinessName(),
-                a.getName(),      // area name
-                c.getName()       // city name
+                a.getName()      // area name
+                // city name
         );
     }
 

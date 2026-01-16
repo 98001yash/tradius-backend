@@ -6,6 +6,6 @@ public record VendorDiscoveryDto(
         UUID vendorId,
         String businessName,
         String categoryName,
-        UUID id, String areaName,
-        UUID cityId, String cityName
+        String areaName,
+        String cityName
 ) {}

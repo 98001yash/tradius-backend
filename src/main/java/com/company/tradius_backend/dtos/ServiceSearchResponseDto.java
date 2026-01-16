@@ -6,9 +6,6 @@ public record ServiceSearchResponseDto(
         UUID serviceId,
         String serviceName,
         Double price,
-        Integer durationMinutes,
-        UUID vendorId,
         String vendorName,
-        String city,
-        String area
+        String city
 ) {}

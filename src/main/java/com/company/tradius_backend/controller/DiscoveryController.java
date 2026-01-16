@@ -32,9 +32,7 @@ public class DiscoveryController {
                             v.getId(),
                             v.getBusinessName(),
                             v.getCategory().getName(),
-                            area.getId(),
                             area.getName(),
-                            city.getId(),
                             city.getName()
                     );
                 })
