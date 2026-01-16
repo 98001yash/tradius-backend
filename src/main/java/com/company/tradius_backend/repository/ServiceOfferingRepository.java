@@ -35,4 +35,27 @@ public interface ServiceOfferingRepository extends JpaRepository<ServiceOffering
     List<ServiceOffering> findActiveServicesByArea(
             @Param("areaId") UUID areaId
     );
-    }
+
+
+
+    @Query("""
+    SELECT s FROM ServiceOffering s
+    JOIN s.vendor v
+    JOIN v.location l
+    JOIN l.area a
+    WHERE a.id = :areaId
+      AND s.active = true
+      AND v.active = true
+      AND v.status = 'APPROVED'
+      AND (
+           lower(s.name) LIKE lower(concat('%', :q, '%'))
+        OR lower(s.description) LIKE lower(concat('%', :q, '%'))
+        OR lower(v.businessName) LIKE lower(concat('%', :q, '%'))
+      )
+""")
+    List<ServiceOffering> searchServicesInArea(
+            @Param("areaId") UUID areaId,
+            @Param("q") String q
+    );
+
+}
