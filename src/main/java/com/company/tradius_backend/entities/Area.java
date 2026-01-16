@@ -9,9 +9,9 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "cities",
+        name = "areas",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name"})
+                @UniqueConstraint(columnNames = {"name", "city_id"})
         }
 )
 @Getter
@@ -19,22 +19,25 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class City {
+public class Area {
 
-     @Id
-     @GeneratedValue
     private UUID id;
-     @Column(nullable = false)
+
     private String name;
 
-    private String state;
-    private String country;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "city_id", nullable = false)
+    private City city;
+
+    private Double latitude;
+    private Double longitude;
 
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
     @PrePersist
-    public void prePersist(){
+    public void prePersist() {
         this.createdAt = OffsetDateTime.now();
         this.updatedAt = OffsetDateTime.now();
     }
@@ -43,5 +46,4 @@ public class City {
     public void preUpdate() {
         this.updatedAt = OffsetDateTime.now();
     }
-
 }
