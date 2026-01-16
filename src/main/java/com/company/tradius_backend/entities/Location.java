@@ -8,17 +8,16 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
+@Table(name = "locations")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "locations")
 public class Location {
 
     @Id
     @GeneratedValue
-    @Column(nullable = false, updatable = false)
     private UUID id;
 
     @Column(nullable = false)
@@ -27,14 +26,14 @@ public class Location {
     @Column(nullable = false)
     private double longitude;
 
-    private String city;
-    private String area;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "area_id", nullable = false)
+    private Area area;
+
     private String addressLine;
 
-    // service radius in kilometers
     private Integer serviceRadiusKm;
 
-    // audit fields
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
@@ -49,3 +48,4 @@ public class Location {
         this.updatedAt = OffsetDateTime.now();
     }
 }
+

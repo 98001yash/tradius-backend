@@ -22,9 +22,8 @@ public class ApplyVendorRequestDto {
     @NotNull(message = "Longitude is required")
     private Double longitude;
 
-    @NotBlank(message = "city is required")
-    private String city;
-    private String area;
+    @NotNull
+    private UUID areaId;
     private String addressLine;
 
     @NotNull(message = "service radius is required")

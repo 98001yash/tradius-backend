@@ -21,6 +21,8 @@ import java.util.UUID;
 @Builder
 public class Area {
 
+    @Id
+    @GeneratedValue
     private UUID id;
 
     private String name;

@@ -2,14 +2,12 @@ package com.company.tradius_backend.service.Impl;
 
 import com.company.tradius_backend.dtos.ApplyVendorRequestDto;
 import com.company.tradius_backend.dtos.VendorResponseDto;
-import com.company.tradius_backend.entities.Category;
-import com.company.tradius_backend.entities.Location;
-import com.company.tradius_backend.entities.User;
-import com.company.tradius_backend.entities.Vendor;
+import com.company.tradius_backend.entities.*;
 import com.company.tradius_backend.enums.Role;
 import com.company.tradius_backend.enums.VendorStatus;
 import com.company.tradius_backend.exceptions.ResourceNotFoundException;
 import com.company.tradius_backend.exceptions.RuntimeConflictException;
+import com.company.tradius_backend.repository.AreaRepository;
 import com.company.tradius_backend.repository.CategoryRepository;
 import com.company.tradius_backend.repository.UserRepository;
 import com.company.tradius_backend.repository.VendorRepository;
@@ -36,36 +34,37 @@ public class VendorServiceImpl implements VendorService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
+    private final AreaRepository areaRepository;
 
 
     @Override
     @PreAuthorize("isAuthenticated()")
     public VendorResponseDto applyForVendor(ApplyVendorRequestDto request) {
-        UUID userId = getCurrentUserId();
-        log.info("User {} applying for vendor",userId);
 
-        if(vendorRepository.existsByOwner_id(userId)){
+        UUID userId = getCurrentUserId();
+        log.info("User {} applying for vendor", userId);
+
+        if (vendorRepository.existsByOwner_id(userId)) {
             throw new RuntimeConflictException("User already has a vendor profile");
         }
 
-        User owner =  userRepository.findById(userId)
-                .orElseThrow(()->
-                        new ResourceNotFoundException("User not found "));
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Category category = categoryRepository
                 .findByIdAndActiveTrue(request.getCategoryId())
-                .orElseThrow(()->
-                        new ResourceNotFoundException("Invalid or inactive category"));
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid or inactive category"));
+
+        Area area = areaRepository.findById(request.getAreaId())
+                .orElseThrow(() -> new ResourceNotFoundException("Area not found"));
 
         Location location = Location.builder()
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
-                .city(request.getCity())
-                .area(request.getArea())
+                .area(area) //  ENTITY
                 .addressLine(request.getAddressLine())
                 .serviceRadiusKm(request.getServiceRadiusKm())
                 .build();
-
 
         Vendor vendor = Vendor.builder()
                 .owner(owner)
@@ -77,9 +76,12 @@ public class VendorServiceImpl implements VendorService {
                 .active(true)
                 .build();
 
-        Vendor savedVendor = vendorRepository.save(vendor);
-        return mapToResponseDto(savedVendor);
+        Vendor saved = vendorRepository.save(vendor);
+
+        log.info("Vendor application submitted. VendorId={}", saved.getId());
+        return mapToResponseDto(saved);
     }
+
 
     @Override
     @PreAuthorize("hasRole('VENDOR') or hasRole('ADMIN')")
@@ -157,7 +159,7 @@ public class VendorServiceImpl implements VendorService {
                         new ResourceNotFoundException("Vendor not found"));
     }
 
-    private VendorResponseDto mapToResponseDto(Vendor vendor){
+    private VendorResponseDto mapToResponseDto(Vendor vendor) {
 
         VendorResponseDto dto = modelMapper.map(vendor, VendorResponseDto.class);
 
@@ -166,10 +168,18 @@ public class VendorServiceImpl implements VendorService {
         dto.setCategoryName(vendor.getCategory().getName());
 
         Location loc = vendor.getLocation();
+        Area area = loc.getArea();
+        City city = area.getCity();
+
         dto.setLatitude(loc.getLatitude());
         dto.setLongitude(loc.getLongitude());
-        dto.setCity(loc.getCity());
-        dto.setArea(loc.getArea());
+
+        dto.setAreaId(area.getId());
+        dto.setAreaName(area.getName());
+
+        dto.setCityId(city.getId());
+        dto.setCityName(city.getName());
+
         dto.setAddressLine(loc.getAddressLine());
         dto.setServiceRadiusKm(loc.getServiceRadiusKm());
 
@@ -178,4 +188,5 @@ public class VendorServiceImpl implements VendorService {
 
         return dto;
     }
+
 }

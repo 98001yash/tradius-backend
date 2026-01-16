@@ -2,9 +2,7 @@ package com.company.tradius_backend.controller;
 
 import com.company.tradius_backend.dtos.ServiceSearchResponseDto;
 import com.company.tradius_backend.dtos.VendorDiscoveryDto;
-import com.company.tradius_backend.entities.Location;
-import com.company.tradius_backend.entities.ServiceOffering;
-import com.company.tradius_backend.entities.Vendor;
+import com.company.tradius_backend.entities.*;
 import com.company.tradius_backend.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,16 +24,21 @@ public class DiscoveryController {
     public List<VendorDiscoveryDto> discoverVendorsByArea(@PathVariable UUID areaId) {
         return vendorRepository.findActiveVendorsByArea(areaId)
                 .stream()
-                .map(v -> new VendorDiscoveryDto(
-                        v.getId(),
-                        v.getBusinessName(),
-                        v.getCategory().getName(),
-                        v.getLocation().getArea(),
-                        v.getLocation().getCity()
-                ))
+                .map(v -> {
+                    Area area = v.getLocation().getArea();
+                    City city = area.getCity();
+
+                    return new VendorDiscoveryDto(
+                            v.getId(),
+                            v.getBusinessName(),
+                            v.getCategory().getName(),
+                            area.getId(),
+                            area.getName(),
+                            city.getId(),
+                            city.getName()
+                    );
+                })
                 .toList();
     }
-
-
 
 }

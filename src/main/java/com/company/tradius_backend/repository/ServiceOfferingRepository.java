@@ -21,7 +21,6 @@ public interface ServiceOfferingRepository extends JpaRepository<ServiceOffering
     Optional<ServiceOffering> findByIdAndVendor_Id(UUID id, UUID vendorId);
 
 
-
     @Query("""
     SELECT s FROM ServiceOffering s
     JOIN s.vendor v
@@ -57,5 +56,7 @@ public interface ServiceOfferingRepository extends JpaRepository<ServiceOffering
             @Param("areaId") UUID areaId,
             @Param("q") String q
     );
+
+
 
 }

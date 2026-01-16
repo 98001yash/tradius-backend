@@ -19,14 +19,18 @@ public class VendorResponseDto {
 
     private Double latitude;
     private Double longitude;
-    private String city;
-    private String area;
+
+    private UUID cityId;
+    private String cityName;
+
+    private UUID areaId;
+    private String areaName;
+
     private String addressLine;
     private Integer serviceRadiusKm;
 
     private String status;
     private boolean active;
-
 
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;

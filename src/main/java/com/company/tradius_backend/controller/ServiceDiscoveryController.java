@@ -1,9 +1,7 @@
 package com.company.tradius_backend.controller;
 
 import com.company.tradius_backend.dtos.ServiceSearchResponseDto;
-import com.company.tradius_backend.entities.Location;
-import com.company.tradius_backend.entities.ServiceOffering;
-import com.company.tradius_backend.entities.Vendor;
+import com.company.tradius_backend.entities.*;
 import com.company.tradius_backend.repository.ServiceOfferingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +14,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ServiceDiscoveryController {
 
-
     private final ServiceOfferingRepository serviceOfferingRepository;
 
+    // Example: /discover/services/area/Manpur
     @GetMapping("/area/{areaId}")
     public List<ServiceSearchResponseDto> discoverServicesByArea(
             @PathVariable UUID areaId
@@ -29,6 +27,8 @@ public class ServiceDiscoveryController {
                 .toList();
     }
 
+
+    // Example: /discover/services/search?area=Manpur&q=salon
     @GetMapping("/search")
     public List<ServiceSearchResponseDto> searchServices(
             @RequestParam UUID areaId,
@@ -40,10 +40,13 @@ public class ServiceDiscoveryController {
                 .toList();
     }
 
-    private ServiceSearchResponseDto mapToDto(ServiceOffering s){
+
+    private ServiceSearchResponseDto mapToDto(ServiceOffering s) {
 
         Vendor v = s.getVendor();
         Location l = v.getLocation();
+        Area a = l.getArea();
+        City c = a.getCity();
 
         return new ServiceSearchResponseDto(
                 s.getId(),
@@ -52,12 +55,13 @@ public class ServiceDiscoveryController {
                 s.getDurationMinutes(),
                 v.getId(),
                 v.getBusinessName(),
-                l.getCity(),
-                l.getArea()
+                a.getName(),      // area name
+                c.getName()       // city name
         );
     }
 
+    //http://localhost:8090/discover/services/search
+  //          ?areaId=9d3c8c5e-9c12-4c1f-bc6f-3e1c8a7d5a21
+//&q=hair
 
-    //  GET
-    //  http://localhost:8090/discover/services/search?areaId={AREA_UUID}&q=salon
 }
