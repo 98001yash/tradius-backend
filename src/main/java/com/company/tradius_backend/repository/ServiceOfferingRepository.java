@@ -2,6 +2,8 @@ package com.company.tradius_backend.repository;
 
 import com.company.tradius_backend.entities.ServiceOffering;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,4 +19,20 @@ public interface ServiceOfferingRepository extends JpaRepository<ServiceOffering
 
     // ownerShip and existence check
     Optional<ServiceOffering> findByIdAndVendor_Id(UUID id, UUID vendorId);
-}
+
+
+
+    @Query("""
+    SELECT s FROM ServiceOffering s
+    JOIN s.vendor v
+    JOIN v.location l
+    JOIN l.area a
+    WHERE a.id = :areaId
+      AND s.active = true
+      AND v.active = true
+      AND v.status = 'APPROVED'
+""")
+    List<ServiceOffering> findActiveServicesByArea(
+            @Param("areaId") UUID areaId
+    );
+    }
