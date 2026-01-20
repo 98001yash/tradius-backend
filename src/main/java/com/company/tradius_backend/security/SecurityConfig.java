@@ -1,5 +1,6 @@
 package com.company.tradius_backend.security;
 
+import com.company.tradius_backend.config.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,16 +17,23 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuthSuccessHandler oAuthSuccessHandler;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .cors(cors ->{})
+                .cors(cors -> {
+                })
                 .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
+                // ✅ THIS IS THE FIX
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(restAuthenticationEntryPoint)
                 )
 
                 .authorizeHttpRequests(auth -> auth
@@ -41,7 +49,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                // ✅ THIS IS MANDATORY FOR OAUTH
+                // OAuth ONLY for browser login
                 .oauth2Login(oauth -> oauth
                         .successHandler(oAuthSuccessHandler)
                 )
