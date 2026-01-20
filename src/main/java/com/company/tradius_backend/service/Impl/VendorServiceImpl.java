@@ -13,12 +13,14 @@ import com.company.tradius_backend.repository.UserRepository;
 import com.company.tradius_backend.repository.VendorRepository;
 import com.company.tradius_backend.service.VendorService;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -84,16 +86,19 @@ public class VendorServiceImpl implements VendorService {
 
 
     @Override
-    @PreAuthorize("hasRole('VENDOR') or hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public VendorResponseDto getVendorProfile() {
        UUID userId = getCurrentUserId();
 
-       Vendor vendor = vendorRepository
-               .findByOwner_Id(userId)
-               .orElseThrow(()->
-                       new ResourceNotFoundException("Vendor Profile not found")
-               );
-       return mapToResponseDto(vendor);
+        Vendor vendor = vendorRepository
+                .findByOwner_Id(userId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Vendor profile not found"
+                        )
+                );
+        return mapToResponseDto(vendor);
     }
 
     //     ADMIN METHODS
