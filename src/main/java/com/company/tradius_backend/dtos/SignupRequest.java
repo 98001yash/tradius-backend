@@ -13,7 +13,7 @@ public class SignupRequest {
 
     @Email(message = "Invalid email found")
     @NotBlank(message = "Email is required")
-    public String email;
+    private String email;
 
     @NotBlank(message = "password is required")
     @Size(min=8, message = "Password must be at least 8 characters")
